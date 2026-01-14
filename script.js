@@ -132,6 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', keydownHandler);
   }
 
+  // Set modal content (title, image, body)
+  function setMavilleContent({ title, imageUrl, body }) {
+    if (!modal) return;
+    const titleEl = modal.querySelector('#maville-title');
+    const bodyEl = modal.querySelector('.content p');
+    const panel = modal.querySelector('.panel');
+    if (titleEl && typeof title === 'string') titleEl.textContent = title;
+    if (bodyEl && typeof body === 'string') bodyEl.textContent = body;
+    if (panel && typeof imageUrl === 'string') panel.style.backgroundImage = `url('${imageUrl}')`;
+  }
+
   function closeMaville(e) {
     if (e) e.preventDefault();
     if (!modal) return;
@@ -155,10 +166,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeBtn) closeBtn.addEventListener('click', closeMaville);
   if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeMaville(); });
 
-  // Activate all 'Lire la suite' buttons to open the MaVille modal
+  // Activate all 'Lire la suite' buttons to open the MaVille modal and load context
   const readMoreBtns = document.querySelectorAll('.read-more');
   if (readMoreBtns && readMoreBtns.length) {
-    readMoreBtns.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); openMaville(); }));
+    readMoreBtns.forEach(b => b.addEventListener('click', (e) => {
+      e.preventDefault();
+      const article = b.closest('article');
+      if (!article) { openMaville(); return; }
+      const titleEl = article.querySelector('h3');
+      const paraEl = article.querySelector('p');
+      // Try to find a background-image style on descendant elements
+      let imgUrl = null;
+      const bgEl = article.querySelector('[style*="background-image"]');
+      if (bgEl) {
+        const m = /url\(['"]?(.*?)['"]?\)/.exec(bgEl.getAttribute('style'));
+        if (m && m[1]) imgUrl = m[1];
+      }
+      const title = titleEl ? titleEl.textContent.trim() : 'MaVille';
+      const body = paraEl ? paraEl.textContent.trim() : '';
+      setMavilleContent({ title, imageUrl: imgUrl || '', body });
+      openMaville();
+    }));
   }
 
   // Dark mode toggle: persist in localStorage and toggle `dark` class on <html>
