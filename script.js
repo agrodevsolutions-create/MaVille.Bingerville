@@ -184,10 +184,36 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const title = titleEl ? titleEl.textContent.trim() : 'MaVille';
       const body = paraEl ? paraEl.textContent.trim() : '';
-      setMavilleContent({ title, imageUrl: imgUrl || '', body });
-      openMaville();
+      // Also populate dedicated article view and push state
+      try {
+        setMavilleContent({ title, imageUrl: imgUrl || '', body });
+        const articleSection = document.getElementById('article');
+        const hero = document.getElementById('article-hero');
+        const titleOut = document.getElementById('article-title');
+        const bodyOut = document.getElementById('article-body');
+        if (hero) hero.style.backgroundImage = imgUrl ? `url('${imgUrl}')` : '';
+        if (titleOut) titleOut.textContent = title;
+        if (bodyOut) bodyOut.textContent = body;
+        // navigate to article section and push history
+        showSection('article');
+        history.pushState({ page: 'article' }, '', '#article');
+      } catch (err) {
+        openMaville();
+      }
     }));
   }
+
+  // Article page back control + popstate handling
+  const articleBack = document.getElementById('article-back');
+  if (articleBack) articleBack.addEventListener('click', (e) => { e.preventDefault(); history.back(); });
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.page === 'article') {
+      showSection('article');
+    } else {
+      // default to MaVille section
+      showSection('maville');
+    }
+  });
 
   // Dark mode toggle: persist in localStorage and toggle `dark` class on <html>
   const darkToggle = document.getElementById('dark-toggle');
