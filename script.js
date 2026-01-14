@@ -64,7 +64,7 @@ function showSection(id) {
 // Attacher la navigation du bas
 document.addEventListener('DOMContentLoaded', () => {
   const navBindings = [
-    ['nav-accueil', 'accueil'],
+    ['nav-accueil', 'maville'],
     ['nav-sondages', 'sondages'],
     ['nav-signalement', 'signalement'],
     ['nav-proximite', 'proximite'],
@@ -80,4 +80,109 @@ document.addEventListener('DOMContentLoaded', () => {
   // FAB
   const fab = document.getElementById('fab');
   if (fab) fab.addEventListener('click', () => showSection('signalement'));
+
+  // MaVille fullscreen modal handling with animation and focus trap
+  const openBtn = document.getElementById('open-maville');
+  const modal = document.getElementById('maville-modal');
+  const closeBtn = document.getElementById('maville-modal-close');
+  let previousActive = null;
+  let keydownHandler = null;
+
+  function getFocusable(el) {
+    return Array.from(el.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'))
+      .filter(e => e.offsetWidth || e.offsetHeight || e === document.activeElement);
+  }
+
+  function openMaville() {
+    if (!modal) return;
+    previousActive = document.activeElement;
+    modal.classList.remove('hidden');
+    // force reflow to ensure transition
+    void modal.offsetWidth;
+    modal.classList.add('maville-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    // focus the close button for immediate keyboard access
+    if (closeBtn) closeBtn.focus();
+
+    // Add keyboard handling: Escape to close, Tab trap
+    keydownHandler = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeMaville();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = getFocusable(modal);
+        if (focusable.length === 0) {
+          e.preventDefault();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', keydownHandler);
+  }
+
+  function closeMaville(e) {
+    if (e) e.preventDefault();
+    if (!modal) return;
+    modal.classList.remove('maville-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // wait for transition to finish before hiding completely
+    const onTransitionEnd = (ev) => {
+      if (ev.target === modal) {
+        modal.classList.add('hidden');
+        modal.removeEventListener('transitionend', onTransitionEnd);
+      }
+    };
+    modal.addEventListener('transitionend', onTransitionEnd);
+    // remove key handler and restore focus
+    if (keydownHandler) document.removeEventListener('keydown', keydownHandler);
+    if (previousActive && typeof previousActive.focus === 'function') previousActive.focus();
+  }
+
+  if (openBtn) openBtn.addEventListener('click', (e) => { e.preventDefault(); openMaville(); });
+  if (closeBtn) closeBtn.addEventListener('click', closeMaville);
+  if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeMaville(); });
+
+  // Dark mode toggle: persist in localStorage and toggle `dark` class on <html>
+  const darkToggle = document.getElementById('dark-toggle');
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === 'dark') {
+      html.classList.add('dark');
+      darkToggle?.setAttribute('aria-pressed', 'true');
+    } else {
+      html.classList.remove('dark');
+      darkToggle?.setAttribute('aria-pressed', 'false');
+    }
+  }
+  function initTheme() {
+    const saved = localStorage.getItem('maville-theme');
+    if (saved) {
+      applyTheme(saved);
+      return;
+    }
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+  }
+  if (darkToggle) {
+    darkToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      const next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem('maville-theme', next);
+    });
+  }
+  initTheme();
 });

@@ -64,40 +64,60 @@ Services utiles de votre quartier :
 | **PWA** | Service Worker, Web Manifest, Géolocalisation, Notifications, Hors-ligne |
 | **Stockage** | `localStorage` (préférences), Supabase (signalements, sondages) |
 | **Performance** | Lazy loading, cache intelligent, animations fluides |
-| **Accessibilité** | Navigation clavier, lecteurs d’écran, contraste élevé |
+| **Accessibilité** | Navigation clavier, lecteurs d’écran, contraste ≥ 4.5:1 (WCAG AA) |
 
 > 🖼️ **Images** : photos urbaines africaines réelles (pas de stock générique)
 
 ---
 
-## 🚀 Déploiement
+## 🧑‍💻 Développement local
 
-### Prérequis
-- Compte GitHub
-- Compte Netlify (gratuit)
-- Projet Supabase (gratuit)
+Ce projet est **100 % statique** — **aucun framework, aucune dépendance npm**.
 
-### Étapes
-1. Push du code sur GitHub
-2. Dans Netlify : **“Add new site” → “Import an existing project”**
-3. Configuration :
-   - **Branch** : `main`
-   - **Build command** : *laisser vide*
-   - **Publish directory** : `/`
-4. Déploiement automatique → URL publique prête
-
-✅ **Installation PWA** : Sur mobile, “Ajouter à l’écran d’accueil”
-
----
-
-## 🧪 Développement local (via GitHub Codespaces)
-
+### Option 1 : Serveur local simple
 ```bash
-# Cloner le repo
-git clone https://github.com/votre-nom/maville-bingerville.git
-cd maville-bingerville
-
-# Lancer un serveur local
+# Depuis le dossier racine
 python -m http.server 8000
 # ou
 npx serve .
+
+---
+
+## 🧑‍💻 Dev Setup (détaillé)
+
+Ce projet est 100% statique. Instructions rapides pour le développement et le déploiement :
+
+- Branch recommandée : `main`
+
+- Pour Netlify :
+	- **Branch** : `main`
+	- **Build command** : (laisser vide)
+	- **Publish directory** : `/` (ou configurer via `netlify.toml`)
+	- Un fichier `netlify.toml` est inclus pour :
+		- définir `publish = "."` (site statique)
+		- rediriger toutes les routes vers `/index.html` (SPA)
+		- forcer `Cache-Control: no-cache` sur `sw.js` et `manifest.json`
+
+Commandes locales :
+
+```bash
+# Cloner le dépôt
+git clone https://github.com/<votre-utilisateur>/MaVille.Bingerville.git
+cd MaVille.Bingerville
+
+# Lancer un serveur HTTP simple (port 8000)
+python -m http.server 8000
+
+# ou, si vous avez `serve` installé :
+npx serve .
+```
+
+Fichiers utiles ajoutés au dépôt : `CONTRIBUTING.md`, `SUPABASE_SCHEMA.md`, `.env.example`, `PRIVACY.md`, `netlify.toml`.
+
+## 🔒 Privacy & gestion des données
+
+La politique de gestion des données et des preuves (photos, géolocalisation) est documentée dans `PRIVACY.md`. Elle décrit : anonymisation, rétention, accès administratif, et procédure de suppression sur demande.
+
+---
+
+Merci de consulter `CONTRIBUTING.md` pour les conventions de contribution et les étapes pour proposer des changements.

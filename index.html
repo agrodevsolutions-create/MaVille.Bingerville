@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#13ec92">
     <link rel="manifest" href="manifest.json">
     <!-- Preload critical assets for faster first paint -->
-    <link rel="preload" href="/style.css" as="style">
     <link rel="preload" href="/script.js" as="script">
     <link rel="preload" href="/icons/icon-192.svg" as="image">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>">
@@ -53,20 +52,26 @@
             },
         }
     </script>
-    <link rel="stylesheet" href="style.css">
+    <!-- External stylesheet removed (no local style.css present) -->
+    <style>
+        /* Fullscreen modal pour l'article MaVille — avec animation et gestion du focus */
+        .maville-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:60; opacity:0; transition:opacity 260ms ease; }
+        .maville-modal.hidden { display: none; opacity:0; }
+        .maville-modal.maville-open { opacity:1; }
+        .maville-modal .panel { position: relative; width:100%; height:100%; max-width:100%; max-height:100%; background-size:cover; background-position:center; display:flex; align-items:flex-end; transform: translateY(6%); transition: transform 320ms cubic-bezier(.22,.9,.35,1); }
+        .maville-modal.maville-open .panel { transform: translateY(0); }
+        .maville-modal .content { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.72) 40%); color: white; padding: 28px; width:100%; box-sizing:border-box; }
+        .maville-modal .back { position: absolute; top:18px; left:18px; background:rgba(0,0,0,0.45); color:white; border-radius:10px; padding:10px 12px; display:inline-flex; align-items:center; gap:8px; border:0; }
+        .maville-modal .back:focus { outline:2px solid white; }
+        .maville-modal h2 { font-size:1.5rem; margin-bottom:0.6rem; }
+        .maville-modal p { font-size:1rem; line-height:1.6; max-width:900px; }
+        /* make close button keyboard-focusable look good */
+        .maville-modal .back .material-symbols-outlined { font-size:20px; }
+    </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white transition-colors duration-200">
     <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-content">
-            <div class="loading-logo">🏙️</div>
-            <div class="loading-text">MaVille</div>
-            <div class="loading-bar-container">
-                <div class="loading-bar"></div>
-            </div>
-            <div class="loading-percentage" id="loading-percentage">0%</div>
-        </div>
-    </div>
+
 
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden pb-24">
         <!-- Header -->
@@ -82,16 +87,19 @@
                 </div>
             </div>
             <div class="flex items-center justify-end">
-                <button aria-label="Notifications" class="flex items-center justify-center rounded-full size-10 bg-white dark:bg-card-dark text-text-main dark:text-white shadow-soft hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                <button aria-label="Notifications" class="flex items-center justify-center rounded-full size-10 bg-white dark:bg-card-dark text-text-main dark:text-white shadow-soft hover:bg-gray-50 dark:hover:bg-white/5 transition-colors mr-2">
                     <span class="material-symbols-outlined text-[24px]">notifications</span>
+                </button>
+                <button id="dark-toggle" aria-pressed="false" aria-label="Basculer thème sombre" class="flex items-center justify-center rounded-full size-10 bg-white dark:bg-card-dark text-text-main dark:text-white shadow-soft hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <img src="/icons/dark-mode.svg" alt="Thème sombre" style="width:22px;height:22px;display:block;" />
                 </button>
             </div>
         </header>
 
         <!-- Sections -->
         <div id="sections">
-            <!-- Accueil -->
-            <section id="accueil" class="section active">
+            <!-- MaVille (anciennement Accueil) -->
+            <section id="maville" class="section active">
                 <!-- Welcome & Weather Section -->
                 <div class="px-4 pt-6 pb-2">
                     <div class="flex justify-between items-end mb-2">
@@ -164,7 +172,7 @@
                                 <span class="text-text-secondary text-xs font-medium flex items-center gap-1">
                                     <span class="material-symbols-outlined text-[16px]">schedule</span> Il y a 2h
                                 </span>
-                                <button class="flex items-center gap-1 text-primary-dark dark:text-primary text-sm font-bold hover:underline">
+                                <button id="open-maville" class="flex items-center gap-1 text-primary-dark dark:text-primary text-sm font-bold hover:underline">
                                     Lire la suite
                                     <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                                 </button>
@@ -301,6 +309,30 @@
                         Voir plus d'actualités
                     </button>
                 </main>
+                <!-- Fullscreen MaVille content modal -->
+                <div id="maville-modal" class="maville-modal hidden" role="dialog" aria-modal="true" aria-labelledby="maville-title" aria-hidden="true">
+                    <div class="panel" style="background-image: url('https://images.unsplash.com/photo-1508057198894-247b23fe5ade?w=1600&q=80&auto=format&fit=crop');">
+                        <button id="maville-modal-close" class="back" type="button" aria-label="Retour">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                            <span class="sr-only">Retour</span>
+                        </button>
+                        <div class="content">
+                            <h2 id="maville-title" tabindex="-1">MaVille — Initiative locale</h2>
+                            <p>
+                                Depuis le lancement du projet MaVille, la commune s'est engagée dans une série d'actions concrètes visant
+                                à renforcer la cohésion territoriale et améliorer la qualité de vie des habitants. Cette initiative pilote
+                                inclut la rénovation des espaces publics, l'installation de nouvelles stations de mobilité douce et la
+                                création d'ateliers participatifs ouverts aux citoyens. Les équipes municipales travaillent avec des
+                                associations locales pour co-concevoir des solutions adaptées aux besoins réels des quartiers, en mettant
+                                l'accent sur l'accessibilité et la durabilité. Les premiers retours montrent une amélioration sensible de
+                                la sécurité nocturne et une augmentation des usages des transports partagés. Un programme de formation
+                                numérique accompagne les jeunes et les seniors afin de favoriser l'inclusion digitale. MaVille poursuit
+                                l'ambition de faire de la commune un territoire résilient où innovation et responsabilité partagée se
+                                traduisent par des projets tangibles portés par la population elle-même.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- Sondages -->
