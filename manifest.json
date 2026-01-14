@@ -1,21 +1,23 @@
 {
-  "name": "MaVille — PWA Civique Participative",
+  "name": "MaVille - Bingerville",
   "short_name": "MaVille",
-  "description": "Plateforme citoyenne PWA pour co-construire la ville.",
+  "description": "PWA civique participative pour Bingerville, Côte d’Ivoire.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#064E3B",
   "icons": [
     {
-      "src": "/icons/icon-192.svg",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "/icons/icon-512.svg",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
-  ]
+  ],
+  "lang": "fr",
+  "orientation": "portrait"
 }
