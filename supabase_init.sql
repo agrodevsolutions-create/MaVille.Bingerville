@@ -1,4 +1,10 @@
--- 1. Activer l'extension uuid-ossp si nécessaire
+-- =============================================================================
+-- MaVille – Schéma de base de données Supabase
+-- Conçu pour Bingerville, Dabou, Songon, Bouaké, Daloa… (Côte d’Ivoire)
+-- Licence MIT – Projet citoyen horizontal, neutre, transparent
+-- =============================================================================
+
+-- 1. Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 2. Table des villes
@@ -10,7 +16,7 @@ CREATE TABLE IF NOT EXISTS cities (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insérer les villes de départ
+-- Villes initiales
 INSERT INTO cities (id, name) VALUES
   ('bingerville', 'Bingerville'),
   ('dabou', 'Dabou'),
@@ -19,7 +25,7 @@ INSERT INTO cities (id, name) VALUES
   ('daloa', 'Daloa')
 ON CONFLICT (id) DO NOTHING;
 
--- 3. Table des signalements
+-- 3. Signalements citoyens (preuve publique)
 CREATE TABLE IF NOT EXISTS reports (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
@@ -36,15 +42,11 @@ CREATE TABLE IF NOT EXISTS reports (
   expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '24 months'
 );
 
--- Index pour performance
 CREATE INDEX IF NOT EXISTS idx_reports_city ON reports(city_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
 CREATE INDEX IF NOT EXISTS idx_reports_expires ON reports(expires_at);
 
--- Activer RLS
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
-
--- Politiques RLS
 CREATE POLICY "Public read access" ON reports FOR SELECT USING (true);
 CREATE POLICY "Anonyme insert" ON reports FOR INSERT WITH CHECK (true);
 CREATE POLICY "Admin update" ON reports FOR UPDATE USING (
@@ -60,7 +62,7 @@ CREATE POLICY "Admin delete" ON reports FOR DELETE USING (
   )
 );
 
--- 4. Table des actualités
+-- 4. Actualités locales
 CREATE TABLE IF NOT EXISTS news (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
@@ -79,7 +81,7 @@ ALTER TABLE news ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read" ON news FOR SELECT USING (true);
 CREATE POLICY "Citizen or mairie insert" ON news FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
--- 5. Table des sondages
+-- 5. Sondages de proximité
 CREATE TABLE IF NOT EXISTS polls (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
@@ -102,7 +104,7 @@ CREATE POLICY "Admin only write" ON polls FOR ALL USING (
   )
 );
 
--- 6. Table des services (annuaire)
+-- 6. Annuaire local (Proximité)
 CREATE TABLE IF NOT EXISTS services (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
@@ -127,7 +129,7 @@ CREATE POLICY "Admin write" ON services FOR ALL USING (
   )
 );
 
--- 7. Table des adhésions (IciMaVille)
+-- 7. Adhésions IciMaVille
 CREATE TABLE IF NOT EXISTS memberships (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   city_id TEXT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
@@ -139,7 +141,7 @@ CREATE TABLE IF NOT EXISTS memberships (
 ALTER TABLE memberships ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Self access" ON memberships FOR ALL USING (auth.uid() = user_id);
 
--- 8. Table des administrateurs par ville (optionnel mais recommandé)
+-- 8. Administrateurs par ville
 CREATE TABLE IF NOT EXISTS city_admins (
   city_id TEXT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
   admin_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -147,13 +149,11 @@ CREATE TABLE IF NOT EXISTS city_admins (
   PRIMARY KEY (city_id, admin_user_id)
 );
 
--- Index
 CREATE INDEX IF NOT EXISTS idx_city_admins_city ON city_admins(city_id);
-
--- RLS sur city_admins (lecture publique, écriture admin global)
 ALTER TABLE city_admins ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read" ON city_admins FOR SELECT USING (true);
 
--- 9. Nettoyage automatique (optionnel – nécessite pg_cron activé)
--- Supprime les signalements expirés
--- SELECT cron.schedule('cleanup-reports', '0 2 * * *', $$DELETE FROM reports WHERE expires_at < NOW();$$);
+-- =============================================================================
+-- Fin du schéma
+-- Exécutez ce script dans l'onglet SQL Editor de votre projet Supabase
+-- =============================================================================
