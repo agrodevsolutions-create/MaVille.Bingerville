@@ -1,79 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MaVille - Bingerville</title>
-  <meta name="description" content="PWA civique participative pour Bingerville, Côte d’Ivoire." />
-  <meta name="theme-color" content="#064E3B" />
-  <!-- Clés Supabase -->
-  <meta name="supabase-url" content="https://wpojhdxjrekypkwbjsfd.supabase.co" />
-  <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indwb2poZHhqcmVreXBrd2Jqc2ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNDc1MDcsImV4cCI6MjA4MzkyMzUwN30.TtWG_n35B-lvCDuggeN2jVU_4i8cbx8cyHA-SPLmrA0" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>" />
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect" />
-  <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#064E3B",
-            "primary-dark": "#043a2d",
-            "background-light": "#f8fcfa",
-            "background-dark": "#10221a",
-            "card-light": "#ffffff",
-            "card-dark": "#1c3026",
-            "text-main": "#0d1b16",
-            "text-secondary": "#4c9a79",
-          },
-          fontFamily: { display: ["Public Sans", "sans-serif"] },
-        },
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaVille - Bingerville</title>
+<meta name="description" content="PWA civique participative pour Bingerville, Côte d’Ivoire.">
+<meta name="theme-color" content="#064E3B">
+<!-- Clés Supabase réelles -->
+<meta name="supabase-url" content="https://wpojhdxjrekypkwbjsfd.supabase.co">
+<meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indwb2poZHhqcmVreXBrd2Jqc2ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzNDc1MDcsImV4cCI6MjA4MzkyMzUwN30.TtWG_n35B-lvCDuggeN2jVU_4i8cbx8cyHA-SPLmrA0">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#064E3B",
+        "primary-dark": "#043a2d",
+        "background-light": "#f8fcfa",
+        "background-dark": "#10221a",
+        "card-light": "#ffffff",
+        "card-dark": "#1c3026",
+        "text-main": "#0d1b16",
+        "text-secondary": "#4c9a79",
       },
-    };
-  </script>
-  <style>
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
+      fontFamily: {
+        display: ["Public Sans", "sans-serif"]
+      },
+      borderRadius: {
+        DEFAULT: "0.375rem",
+        md: "0.375rem",
+        lg: "0.5rem",
+        xl: "0.75rem",
+        "2xl": "1rem",
+        full: "9999px"
+      },
+      boxShadow: {
+        soft: '0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 0 4px -2px rgba(0, 0, 0, 0.02)',
+        card: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'
+      }
+    }
+  }
+}
+</script>
+<style>
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
 </head>
 <body class="bg-background-dark text-white font-display min-h-screen pb-24">
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-sm p-4 border-b border-white/5 flex justify-between items-center">
-    <h1 class="text-lg font-bold">MaVille · Bingerville</h1>
-    <button id="dark-toggle" class="p-2 rounded-full hover:bg-white/10">
-      <span class="material-symbols-outlined">light_mode</span>
-    </button>
-  </header>
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center bg-background-dark/95 backdrop-blur-sm p-4 border-b border-white/5 justify-between">
+  <div class="flex items-center gap-3">
+    <div class="relative">
+      <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shadow-sm ring-2 ring-white dark:ring-white/10" style="background-image: url('https://placehold.co/100x100/064E3B/white?text=👤');"></div>
+      <div class="absolute bottom-0 right-0 size-3 bg-primary rounded-full border-2 border-white dark:border-background-dark"></div>
+    </div>
+    <div class="flex flex-col">
+      <span class="text-xs font-medium text-text-secondary uppercase tracking-wider">Mon Compte</span>
+      <h2 class="text-text-main dark:text-white text-base font-bold leading-tight tracking-[-0.015em]">MaVille · Bingerville</h2>
+    </div>
+  </div>
+  <button id="dark-toggle" aria-label="Basculer thème sombre" class="p-2 rounded-full hover:bg-white/10">
+    <span class="material-symbols-outlined text-[22px]">light_mode</span>
+  </button>
+</header>
 
-  <!-- Sections -->
-  <div id="sections" class="px-4 py-6">
-    <!-- MaVille -->
-    <section id="maville" class="section active">
-      <h2 class="text-2xl font-bold mb-4">Actualités locales</h2>
-      <main id="news-container" class="space-y-5">
-        <!-- Chargé dynamiquement -->
-      </main>
-    </section>
+<!-- Sections -->
+<div id="sections">
+  <!-- MaVille (Accueil) -->
+  <section id="maville" class="section active">
+    <div class="px-4 pt-6 pb-2">
+      <h1 class="text-text-main dark:text-white tracking-tight text-3xl font-bold leading-tight">Bonjour, Citoyen</h1>
+      <p class="text-text-secondary text-sm font-normal leading-normal mt-2">Voici les dernières nouvelles de votre commune.</p>
+    </div>
 
-    <!-- Avis -->
-    <section id="sondages" class="section hidden">
-      <h2 class="text-2xl font-bold mb-4">Sondages actifs</h2>
-      <div id="polls-container" class="space-y-5">
-        <!-- Chargé dynamiquement -->
+    <!-- Quick Actions -->
+    <div class="px-4 py-4">
+      <div class="grid grid-cols-2 gap-3">
+        <button class="flex flex-col items-center justify-center p-4 bg-card-light dark:bg-card-dark rounded-2xl shadow-card hover:shadow-lg transition-all group" onclick="showSection('signalement')">
+          <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
+            <span class="material-symbols-outlined text-primary text-2xl">add_a_photo</span>
+          </div>
+          <span class="text-text-main dark:text-white font-semibold text-sm">Signaler</span>
+          <span class="text-text-secondary text-xs">30 secondes</span>
+        </button>
+        <button class="flex flex-col items-center justify-center p-4 bg-card-light dark:bg-card-dark rounded-2xl shadow-card hover:shadow-lg transition-all group" onclick="showSection('sondages')">
+          <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-2 group-hover:bg-blue-500/20 transition-colors">
+            <span class="material-symbols-outlined text-blue-500 text-2xl">how_to_vote</span>
+          </div>
+          <span class="text-text-main dark:text-white font-semibold text-sm">Voter</span>
+          <span class="text-text-secondary text-xs">Donnez votre avis</span>
+        </button>
       </div>
-    </section>
+    </div>
 
-    <!-- Signalement -->
-    <section id="signalement" class="section hidden">
-      <h2 class="text-2xl font-bold mb-4">Signaler un problème</h2>
-      <form id="signalement-form" class="space-y-4">
+    <!-- Stats Section -->
+    <div class="px-4 pb-4">
+      <div class="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-4 text-white">
+        <h3 class="font-bold text-lg mb-3">MaVille en chiffres</h3>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div><div class="text-2xl font-bold" id="stat-signalements">0</div><div class="text-sm opacity-90">Signalements</div></div>
+          <div><div class="text-2xl font-bold" id="stat-citoyens">0</div><div class="text-sm opacity-90">Citoyens actifs</div></div>
+          <div><div class="text-2xl font-bold" id="stat-resolus">0%</div><div class="text-sm opacity-90">Résolus</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- News Feed (dynamique) -->
+    <main class="flex flex-col gap-5 p-4" id="news-container">
+      <!-- Chargé depuis Supabase -->
+    </main>
+  </section>
+
+  <!-- Avis -->
+  <section id="sondages" class="section hidden">
+    <main class="flex-1 px-4 pt-6 flex flex-col gap-8">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-text-main dark:text-white text-2xl font-bold">Vos Avis</h3>
+        <button class="flex items-center gap-2 px-3 py-2 bg-primary text-text-main rounded-lg shadow-sm">
+          <span class="material-symbols-outlined text-sm">add</span>
+          <span class="text-sm font-medium">Proposer</span>
+        </button>
+      </div>
+      <div id="polls-container" class="space-y-5">
+        <!-- Chargé depuis Supabase -->
+      </div>
+    </main>
+  </section>
+
+  <!-- Signalement -->
+  <section id="signalement" class="section hidden">
+    <div class="px-4 pt-6 pb-2">
+      <h1 class="text-text-main dark:text-white tracking-tight text-3xl font-bold">Signalement Rapide</h1>
+      <p class="text-text-secondary text-sm font-normal mt-2">Signalez un problème en 30 secondes.</p>
+    </div>
+    <main class="p-4 space-y-6">
+      <form id="signalement-form" class="space-y-5">
         <textarea id="report-desc" placeholder="Décrivez le problème..." required class="w-full p-3 rounded-lg bg-card-dark text-white"></textarea>
         <input type="text" id="report-location" placeholder="Localisation (ex: Rue Gbagba)" required class="w-full p-3 rounded-lg bg-card-dark text-white" />
         <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-bold">Envoyer</button>
@@ -81,50 +153,62 @@
       <div id="reports-list" class="mt-6 space-y-3">
         <!-- Vos signalements récents -->
       </div>
-    </section>
+    </main>
+  </section>
 
-    <!-- Proximité -->
-    <section id="proximite" class="section hidden">
-      <h2 class="text-2xl font-bold mb-4">Services à proximité</h2>
-      <div id="services-container" class="grid grid-cols-1 gap-4">
-        <!-- Chargé dynamiquement -->
+  <!-- Proximité -->
+  <section id="proximite" class="section hidden">
+    <header class="sticky top-16 z-20 bg-background-dark/95 backdrop-blur-md border-b border-white/5">
+      <div class="flex items-center justify-between px-4 py-3">
+        <h1 class="text-2xl font-bold text-white">Proximité</h1>
       </div>
-    </section>
+    </header>
+    <div class="px-4 pt-6 pb-2">
+      <h3 class="text-lg font-bold text-white mb-4">Services à proximité</h3>
+      <div id="services-container" class="grid grid-cols-1 gap-4">
+        <!-- Chargé depuis Supabase -->
+      </div>
+    </div>
+  </section>
 
-    <!-- Moi -->
-    <section id="moi" class="section hidden">
-      <h2 class="text-2xl font-bold mb-4">Mon espace</h2>
+  <!-- Moi -->
+  <section id="moi" class="section hidden">
+    <header class="sticky top-16 z-50 bg-background-dark/95 backdrop-blur-sm border-b border-white/5">
+      <h2 class="text-lg font-bold text-center py-4">Espace Personnel</h2>
+    </header>
+    <div class="px-4 pt-6">
       <p class="text-gray-400">Connectez-vous pour accéder à vos contributions.</p>
       <button id="login-btn" class="mt-4 bg-primary text-white px-4 py-2 rounded-lg">Se connecter</button>
-    </section>
-  </div>
-
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 left-0 w-full bg-card-dark border-t border-white/5 pb-safe pt-2">
-    <div class="flex justify-around items-center h-16 max-w-md mx-auto">
-      <a href="#" class="nav-item flex flex-col items-center gap-1 text-primary" data-section="maville">
-        <span class="material-symbols-outlined">home</span>
-        <span class="text-[10px] font-bold">Accueil</span>
-      </a>
-      <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="sondages">
-        <span class="material-symbols-outlined">how_to_vote</span>
-        <span class="text-[10px] font-medium">Avis</span>
-      </a>
-      <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="signalement">
-        <span class="material-symbols-outlined">add</span>
-        <span class="text-[10px] font-medium">Signaler</span>
-      </a>
-      <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="proximite">
-        <span class="material-symbols-outlined">map</span>
-        <span class="text-[10px] font-medium">Proximité</span>
-      </a>
-      <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="moi">
-        <span class="material-symbols-outlined">person</span>
-        <span class="text-[10px] font-medium">Moi</span>
-      </a>
     </div>
-  </nav>
+  </section>
+</div>
 
-  <script type="module" src="script.js"></script>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full bg-card-dark border-t border-white/5 pb-safe pt-2">
+  <div class="flex items-center justify-around w-full h-16 max-w-md mx-auto">
+    <a href="#" class="nav-item flex flex-col items-center gap-1 text-primary" data-section="maville">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[10px] font-bold">Accueil</span>
+    </a>
+    <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="sondages">
+      <span class="material-symbols-outlined">how_to_vote</span>
+      <span class="text-[10px] font-medium">Avis</span>
+    </a>
+    <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="signalement">
+      <span class="material-symbols-outlined">add</span>
+      <span class="text-[10px] font-medium">Signaler</span>
+    </a>
+    <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="proximite">
+      <span class="material-symbols-outlined">map</span>
+      <span class="text-[10px] font-medium">Proximité</span>
+    </a>
+    <a href="#" class="nav-item flex flex-col items-center gap-1 text-gray-400" data-section="moi">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-[10px] font-medium">Moi</span>
+    </a>
+  </div>
+</nav>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
