@@ -7,6 +7,10 @@
     <meta name="description" content="Application web progressive pour agir ensemble dans votre commune.">
     <meta name="theme-color" content="#13ec92">
     <link rel="manifest" href="manifest.json">
+    <!-- Preload critical assets for faster first paint -->
+    <link rel="preload" href="/style.css" as="style">
+    <link rel="preload" href="/script.js" as="script">
+    <link rel="preload" href="/icons/icon-192.svg" as="image">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
