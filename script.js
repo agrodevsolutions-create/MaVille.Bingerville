@@ -169,32 +169,87 @@ document.addEventListener('DOMContentLoaded', () => {
   // Activate all 'Lire la suite' buttons to open the MaVille modal and load context
   const readMoreBtns = document.querySelectorAll('.read-more');
   if (readMoreBtns && readMoreBtns.length) {
-    readMoreBtns.forEach(b => b.addEventListener('click', (e) => {
+    // helper: read supabase config from meta tags or window.SUPABASE_CONFIG
+    function getSupabaseConfig() {
+      const metaUrl = document.querySelector('meta[name="supabase-url"]');
+      const metaKey = document.querySelector('meta[name="supabase-key"]');
+      const url = metaUrl ? metaUrl.getAttribute('content') : (window.SUPABASE && window.SUPABASE.url) || null;
+      const key = metaKey ? metaKey.getAttribute('content') : (window.SUPABASE && window.SUPABASE.anonKey) || null;
+      return { url, key };
+    }
+
+    async function fetchArticleFromSupabase(id, cfg) {
+      if (!cfg || !cfg.url || !cfg.key) throw new Error('Supabase not configured');
+      const url = cfg.url.replace(/\/$/, '');
+      // expecting a table `articles` — adapt fields as needed
+      const endpoint = `${url}/rest/v1/articles?id=eq.${encodeURIComponent(id)}&select=*`;
+      const res = await fetch(endpoint, {
+        headers: {
+          'apikey': cfg.key,
+          'Authorization': `Bearer ${cfg.key}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error(`Supabase request failed: ${res.status}`);
+      const json = await res.json();
+      return Array.isArray(json) && json.length ? json[0] : null;
+    }
+
+    readMoreBtns.forEach(b => b.addEventListener('click', async (e) => {
       e.preventDefault();
       const article = b.closest('article');
-      if (!article) { openMaville(); return; }
-      const titleEl = article.querySelector('h3');
-      const paraEl = article.querySelector('p');
-      // Try to find a background-image style on descendant elements
+      // data-article-id may be set on the button or the article element
+      const id = b.dataset.articleId || (article && article.dataset.articleId) || null;
+      const titleEl = article ? article.querySelector('h3') : null;
+      const paraEl = article ? article.querySelector('p') : null;
       let imgUrl = null;
-      const bgEl = article.querySelector('[style*="background-image"]');
+      const bgEl = article ? article.querySelector('[style*="background-image"]') : null;
       if (bgEl) {
         const m = /url\(['"]?(.*?)['"]?\)/.exec(bgEl.getAttribute('style'));
         if (m && m[1]) imgUrl = m[1];
       }
-      const title = titleEl ? titleEl.textContent.trim() : 'MaVille';
-      const body = paraEl ? paraEl.textContent.trim() : '';
-      // Also populate dedicated article view and push state
+
+      const fallbackTitle = titleEl ? titleEl.textContent.trim() : 'MaVille';
+      const fallbackBody = paraEl ? paraEl.textContent.trim() : '';
+
+      if (id) {
+        const cfg = getSupabaseConfig();
+        if (cfg.url && cfg.key) {
+          try {
+            // show loading
+            const articleSection = document.getElementById('article');
+            const hero = document.getElementById('article-hero');
+            const titleOut = document.getElementById('article-title');
+            const bodyOut = document.getElementById('article-body');
+            if (titleOut) titleOut.textContent = 'Chargement…';
+            if (bodyOut) bodyOut.textContent = '';
+            showSection('article');
+            const data = await fetchArticleFromSupabase(id, cfg);
+            if (data) {
+              const t = data.title || fallbackTitle;
+              const body = data.body || data.content || fallbackBody;
+              const image = data.image_url || data.image || imgUrl || '';
+              if (hero) hero.style.backgroundImage = image ? `url('${image}')` : '';
+              if (titleOut) titleOut.textContent = t;
+              if (bodyOut) bodyOut.textContent = body;
+              history.pushState({ page: 'article', id }, '', `#article-${id}`);
+              return;
+            }
+          } catch (err) {
+            console.warn('Supabase fetch failed, falling back to local content', err);
+          }
+        }
+      }
+
+      // fallback: use local DOM content and navigate to article view
       try {
-        setMavilleContent({ title, imageUrl: imgUrl || '', body });
         const articleSection = document.getElementById('article');
         const hero = document.getElementById('article-hero');
         const titleOut = document.getElementById('article-title');
         const bodyOut = document.getElementById('article-body');
         if (hero) hero.style.backgroundImage = imgUrl ? `url('${imgUrl}')` : '';
-        if (titleOut) titleOut.textContent = title;
-        if (bodyOut) bodyOut.textContent = body;
-        // navigate to article section and push history
+        if (titleOut) titleOut.textContent = fallbackTitle;
+        if (bodyOut) bodyOut.textContent = fallbackBody;
         showSection('article');
         history.pushState({ page: 'article' }, '', '#article');
       } catch (err) {
