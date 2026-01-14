@@ -155,6 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeBtn) closeBtn.addEventListener('click', closeMaville);
   if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeMaville(); });
 
+  // Activate all 'Lire la suite' buttons to open the MaVille modal
+  const readMoreBtns = document.querySelectorAll('.read-more');
+  if (readMoreBtns && readMoreBtns.length) {
+    readMoreBtns.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); openMaville(); }));
+  }
+
   // Dark mode toggle: persist in localStorage and toggle `dark` class on <html>
   const darkToggle = document.getElementById('dark-toggle');
   function applyTheme(theme) {
