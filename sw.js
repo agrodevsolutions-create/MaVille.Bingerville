@@ -1,14 +1,15 @@
-// Service worker amélioré — précache + runtime caching
-const PRECACHE = 'maville-precache-v2';
-const RUNTIME = 'maville-runtime-v1';
+// Service Worker pour MaVille – Bingerville
+const PRECACHE = 'maville-precache-v3';
+const RUNTIME = 'maville-runtime-v2';
 
 const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/script.js',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg'
+  // Icônes au format PNG (conformes à manifest.json)
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -21,69 +22,75 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== PRECACHE && key !== RUNTIME).map(key => caches.delete(key))
+      keys.filter(key => ![PRECACHE, RUNTIME].includes(key)).map(key => caches.delete(key))
     ))
   );
   self.clients.claim();
 });
 
-// Simple helper to put response in cache
 async function cachePut(cacheName, request, response) {
   const cache = await caches.open(cacheName);
   try {
     await cache.put(request, response.clone());
   } catch (e) {
-    // ignore put errors (opaque requests etc.)
+    // Ignorer les erreurs (ex: requêtes opaques)
   }
 }
 
 self.addEventListener('fetch', event => {
   const request = event.request;
-
-  // Ignore non-GET
-  if (request.method !== 'GET') return;
-
-  // Navigation requests — Network first, fallback to cache (index.html)
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).then(response => {
-        cachePut(RUNTIME, request, response);
-        return response;
-      }).catch(() => caches.match('/index.html'))
-    );
-    return;
-  }
-
   const url = new URL(request.url);
 
-  // Images: cache-first
-  if (request.destination === 'image' || url.pathname.startsWith('/images/') || url.pathname.startsWith('/icons/')) {
+  // 🔒 Ne jamais intercepter les appels Supabase
+  if (url.origin === 'https://wpojhdxjrekypkwbjsfd.supabase.co') {
+    return;
+  }
+
+  // Ignorer les requêtes non-GET
+  if (request.method !== 'GET') return;
+
+  // Navigation : Network first, fallback sur index.html
+  if (request.mode === 'navigate') {
     event.respondWith(
-      caches.match(request).then(cached => cached || fetch(request).then(resp => { cachePut(RUNTIME, request, resp); return resp; }))
+      fetch(request).catch(() => caches.match('/index.html'))
     );
     return;
   }
 
-  // CSS/JS/Fonts: stale-while-revalidate
-  if (request.destination === 'style' || request.destination === 'script' || request.destination === 'font') {
+  // Images locales : cache-first
+  if (
+    request.destination === 'image' || 
+    url.pathname.startsWith('/images/') || 
+    url.pathname.match(/\.(png|jpg|jpeg|webp|svg)$/)
+  ) {
+    event.respondWith(
+      caches.match(request).then(cached => 
+        cached || fetch(request).then(resp => { cachePut(RUNTIME, request, resp); return resp; })
+      )
+    );
+    return;
+  }
+
+  // CSS/JS/Fonts : stale-while-revalidate
+  if (['style', 'script', 'font'].includes(request.destination)) {
     event.respondWith(
       caches.match(request).then(cached => {
-        const networkFetch = fetch(request).then(resp => { cachePut(RUNTIME, request, resp); return resp; }).catch(() => null);
+        const networkFetch = fetch(request).then(resp => { cachePut(RUNTIME, request, resp); return resp; });
         return cached || networkFetch;
       })
     );
     return;
   }
 
-  // Default: try cache, otherwise network
+  // Autres ressources : network first
   event.respondWith(
-    caches.match(request).then(cached => cached || fetch(request).then(resp => { cachePut(RUNTIME, request, resp); return resp; }))
+    fetch(request).catch(() => caches.match(request))
   );
 });
 
-// Allow page to trigger skipWaiting via postMessage
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
+// Gestion des mises à jour
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
