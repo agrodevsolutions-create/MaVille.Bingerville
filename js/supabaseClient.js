@@ -55,7 +55,8 @@ export async function loadServices(cityId = 'bingerville', category = null) {
  */
 export async function submitReport(reportData) {
   // Vérifier si utilisateur connecté
-  const {  { user } } = await supabase.auth.getUser();
+  const { data: { user } = {}, error: userErr } = await supabase.auth.getUser();
+  if (userErr) console.warn('supabase.auth.getUser error:', userErr);
   
   const report = {
     city_id: 'bingerville',
@@ -99,8 +100,9 @@ export async function loadActivePoll(cityId = 'bingerville') {
  * Onglet "Avis" – Voter à un sondage
  */
 export async function votePoll(pollId, optionIndex) {
-  const {  { user } } = await supabase.auth.getUser();
-  
+  const { data: { user } = {}, error: userErr } = await supabase.auth.getUser();
+  if (userErr) console.warn('supabase.auth.getUser error:', userErr);
+
   // Pour MVP : vote anonyme non tracé (à améliorer avec sessions)
   const { error } = await supabase.rpc('vote_poll', {
     _poll_id: pollId,
